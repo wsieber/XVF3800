@@ -1,0 +1,6 @@
+substitutions:
+  name: xvf3800-2
+  friendly_name: ReSpeaker XVF3800 2
+
+packages:
+  common: !include xvf3800/common.yaml

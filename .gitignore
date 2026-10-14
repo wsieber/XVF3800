@@ -1,0 +1,11 @@
+# ESPHome build output and local secrets
+/.esphome/
+/secrets.yaml
+
+# Local tooling
+/.venv/
+/build.log
+.DS_Store
+
+# Other devices managed from this directory (not part of the XVF3800 setup)
+/respeaker-satellite.yaml

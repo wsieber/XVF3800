@@ -1,0 +1,67 @@
+# Shared config for every ReSpeaker XVF3800 satellite. Each device has a thin top-level yaml that
+# sets name/friendly_name and includes this file as a package. Change behaviour here, not there.
+
+substitutions:
+  # Pinned: xvf3800/voice-assistant.yaml is a local copy of this commit's package.
+  respeaker_ref: e9b11374c7bd9d3ba95ce084dfd30860eb7e4bc7
+  # Fallback chime until the clock has synced after boot (same as the Satellite1s).
+  wake_word_triggered_sound_file: sounds/yo.flac
+  # Wake words (the manifest's wake_word phrase, quoted, comma-separated) that get the female (_f)
+  # greeting set; every other wake word, Frederick included, gets the male set.
+  female_wake_words: '"Okay Nabu", "Ok Emily"'
+
+packages:
+  respeaker:
+    url: https://github.com/formatBCE/Respeaker-XVF3800-ESPHome-integration
+    ref: ${respeaker_ref}
+    refresh: 1d
+    files:
+      - packages/base.yaml
+      - packages/hardware.yaml
+      - packages/leds.yaml
+      - packages/timers-alarm.yaml
+  # Upstream packages/voice-assistant.yaml with the Satellite1 wake greeting (see its header).
+  voice_assistant: !include voice-assistant.yaml
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+ota:
+  - platform: esphome
+    id: ota_esphome
+    password: !secret ota_password
+
+# The upstream package caps everything at INFO. Compile in DEBUG but keep the runtime level at INFO,
+# and raise only micro_wake_word so "Detected ..." and "...but VAD model doesn't." lines show up.
+logger:
+  level: DEBUG
+  initial_level: INFO
+  logs:
+    micro_wake_word: DEBUG
+
+# Time-of-day wake greetings, ported from a FutureProofHomes Satellite1 config
+# (Satellite1-ESPHome fork, config/common/media_player.yaml).
+audio_file:
+  - id: wake_good_morning_sound
+    file: sounds/morning.mp3
+  - id: wake_good_afternoon_sound
+    file: sounds/afternoon.mp3
+  - id: wake_good_evening_sound
+    file: sounds/evening.mp3
+  - id: wake_good_morning_f_sound
+    file: sounds/morning_f.mp3
+  - id: wake_good_afternoon_f_sound
+    file: sounds/afternoon_f.mp3
+  - id: wake_good_evening_f_sound
+    file: sounds/evening_f.mp3
+
+micro_wake_word:
+  # Upstream sets 0.05, which barely gates anything; 0.5 is the model's manifest default (Sat1s use it).
+  vad:
+    probability_cutoff: 0.5
+  models:
+    - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/frederickv2esp32.json
+      id: frederick
+    - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/ok_emily.json
+      id: ok_emily
