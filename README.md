@@ -124,6 +124,8 @@ package's `on_wake_word_detected` can't be replaced: `!remove` plus a redefiniti
 
 ## Credits and license
 
+This repository is released under the [MIT License](LICENSE).
+
 - Base firmware: [formatBCE/Respeaker-XVF3800-ESPHome-integration](https://github.com/formatBCE/Respeaker-XVF3800-ESPHome-integration).
   `xvf3800/voice-assistant.yaml` is a modified copy of its `packages/voice-assistant.yaml`, used under the MIT license.
   See [xvf3800/LICENSE.upstream.md](xvf3800/LICENSE.upstream.md).
