@@ -15,3 +15,7 @@ micro_wake_word:
       id: okay_computer
       # Manifest says 0.95; real detections averaged 0.94-0.96, so 0.92 gives some margin.
       probability_cutoff: 0.92
+    - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/yo_fredricesp32.json
+      id: yo_fredric
+      # Manifest says 0.95; on .121 real detections averaged 0.92-0.97, 9 for 9.
+      probability_cutoff: 0.92
