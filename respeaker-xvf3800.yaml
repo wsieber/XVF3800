@@ -8,8 +8,6 @@ packages:
 micro_wake_word:
   # Test set from Wake Word Studio (2026-10-15/16).
   models:
-    - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/hey_uncul_fredesp32.json
-      id: hey_uncul_fred
     - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/okay_fredricesp32.json
       id: okay_fredric
     - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/okay_computeresp32.json
