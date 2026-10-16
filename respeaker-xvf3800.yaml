@@ -20,3 +20,8 @@ micro_wake_word:
       id: yo_fredric
       # Manifest says 0.95; starting at 0.92 like Okay Computer.
       probability_cutoff: 0.92
+    # Baseline for a Frederick v3 trained at 75k/50k: v2 was 50k/40k. Load one Frederick at a time.
+    - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/frederickv2esp32.json
+      id: frederick
+      # Manifest says 0.96; 0.92 to match the other test words.
+      probability_cutoff: 0.92
