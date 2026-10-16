@@ -11,5 +11,7 @@ micro_wake_word:
       id: frederick
     - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/ok_emily.json
       id: ok_emily
-    - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/hey_uncle_fredesp32.json
-      id: hey_uncle_fred
+    - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/okay_computeresp32.json
+      id: okay_computer
+      # Manifest says 0.95; real detections averaged 0.94-0.96, so 0.92 gives some margin.
+      probability_cutoff: 0.92
