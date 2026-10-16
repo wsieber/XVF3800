@@ -60,10 +60,5 @@ micro_wake_word:
   # Upstream sets 0.05, which barely gates anything; 0.5 is the model's manifest default (Sat1s use it).
   vad:
     probability_cutoff: 0.5
-  models:
-    - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/frederickv2esp32.json
-      id: frederick
-    - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/ok_emily.json
-      id: ok_emily
-    - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/hey_uncle_fredesp32.json
-      id: hey_uncle_fred
+  # Custom wake word models are listed per device (respeaker-xvf3800.yaml, xvf3800-2.yaml) so one
+  # unit can test new words while the other keeps its set; they merge with the upstream models.

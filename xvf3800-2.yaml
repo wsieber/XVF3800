@@ -4,3 +4,12 @@ substitutions:
 
 packages:
   common: !include xvf3800/common.yaml
+
+micro_wake_word:
+  models:
+    - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/frederickv2esp32.json
+      id: frederick
+    - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/ok_emily.json
+      id: ok_emily
+    - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/hey_uncle_fredesp32.json
+      id: hey_uncle_fred
