@@ -6,10 +6,6 @@ packages:
   common: !include xvf3800/common.yaml
 
 micro_wake_word:
-  # Lower VAD gate, same as respeaker-xvf3800.yaml (.121): at 0.5 it blocked a wake word the model
-  # scored 0.99+. Overrides common.yaml's 0.5 for this unit.
-  vad:
-    probability_cutoff: 0.3
   models:
     - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/frederickv2esp32.json
       id: frederick
