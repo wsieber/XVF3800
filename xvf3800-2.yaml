@@ -9,6 +9,8 @@ micro_wake_word:
   models:
     - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/frederickv2esp32.json
       id: frederick
+      # The manifest's 0.96, set explicitly on 2026-10-20 to match Yo Fredric.
+      probability_cutoff: 0.96
     - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/ok_emily.json
       id: ok_emily
     - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/okay_computeresp32.json
@@ -17,5 +19,5 @@ micro_wake_word:
       probability_cutoff: 0.92
     - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/yo_fredricesp32.json
       id: yo_fredric
-      # Manifest says 0.95; on .121 real detections averaged 0.92-0.97, 9 for 9.
-      probability_cutoff: 0.92
+      # Raised to 0.96 on 2026-10-20: 0.92 gave too many false wakes.
+      probability_cutoff: 0.96
