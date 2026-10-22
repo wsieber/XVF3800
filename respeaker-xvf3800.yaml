@@ -20,3 +20,7 @@ micro_wake_word:
       # Window raised from the manifest's 5 on 2026-10-20 to cut false wakes: the score has to stay
       # high across more frames.
       sliding_window_size: 8
+    # Test word from Wake Word Studio (2026-10-22, 75k/50k), replacing Yo Fredric. Manifest's
+    # calibrated cutoff 0.95 and window 5 for now.
+    - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/yo_frederickesp32.json
+      id: yo_frederick

@@ -20,3 +20,7 @@ micro_wake_word:
       id: okay_computer
       # Manifest says 0.95; real detections averaged 0.94-0.96, so 0.92 gives some margin.
       probability_cutoff: 0.92
+    # Test word from Wake Word Studio (2026-10-22, 75k/50k), replacing Yo Fredric. Manifest's
+    # calibrated cutoff 0.95 and window 5 for now.
+    - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/yo_frederickesp32.json
+      id: yo_frederick
