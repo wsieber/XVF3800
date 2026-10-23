@@ -7,20 +7,13 @@ packages:
 
 micro_wake_word:
   models:
-    - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/frederickv2esp32.json
-      id: frederick
-      # The manifest's 0.96, set explicitly on 2026-10-20.
-      probability_cutoff: 0.96
-      # Window raised from the manifest's 5 on 2026-10-20 to cut false wakes: the score has to stay
-      # high across more frames.
-      sliding_window_size: 8
     - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/ok_emily.json
       id: ok_emily
     - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/okay_computeresp32.json
       id: okay_computer
       # Manifest says 0.95; real detections averaged 0.94-0.96, so 0.92 gives some margin.
       probability_cutoff: 0.92
-    # Test word from Wake Word Studio (2026-10-22, 75k/50k), replacing Yo Fredric. Manifest's
-    # calibrated cutoff 0.95 and window 5 for now.
+    # Wake Word Studio 2026-10-22 (75k/50k, with VoxPopuli), at the manifest's cutoff 0.95 and window 5:
+    # 8 for 8 in the room and no false wakes in about 3 hours of loud TV on .121. Replaces Frederick v2.
     - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/yo_frederickesp32.json
       id: yo_frederick
