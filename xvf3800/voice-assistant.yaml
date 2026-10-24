@@ -165,6 +165,13 @@ media_player:
               decibel_reduction: 0
               duration: 1.0s
 
+globals:
+  # millis() of the last accepted wake word, for the 2 s double-fire guard in on_wake_word_detected.
+  - id: last_wake_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
 micro_wake_word:
   id: mww
   microphone:
@@ -182,98 +189,115 @@ micro_wake_word:
   vad:
     probability_cutoff: 0.05
   on_wake_word_detected:
-    # If the wake word is detected when the device is muted (Possible with the software mute switch): Do nothing
+    # Two models can fire on one utterance (Computer on "Frederick", Frederick on "Yo Frederick"),
+    # and the second detection would land on the first one's greeting and stop it as an interruption.
+    # So a wake within 2 s of the last accepted one is dropped. Interrupting a longer reply still works.
     - if:
         condition:
-          switch.is_off: mic_mute_switch
+          lambda: |-
+            const uint32_t now = millis();
+            if (id(last_wake_ms) != 0 && now - id(last_wake_ms) < 2000)
+              return true;
+            id(last_wake_ms) = now;
+            return false;
         then:
-          - script.execute:
-              id: send_wake_word_event
-              wake_word: !lambda return wake_word;
-          # If a timer is ringing: Stop it, do not start the voice assistant (We can stop timer from voice!)
+          - logger.log:
+              level: INFO
+              format: "Wake word ignored: '%s' within 2 s of the previous wake"
+              args: [wake_word.c_str()]
+        else:
+          # If the wake word is detected when the device is muted (Possible with the software mute switch): Do nothing
           - if:
               condition:
-                switch.is_on: timer_ringing
+                switch.is_off: mic_mute_switch
               then:
-                - logger.log:
-                    level: INFO
-                    format: "Wake word ignored: stopping the ringing timer"
-                - switch.turn_off: timer_ringing
-              # Stop voice assistant if running
-              else:
+                - script.execute:
+                    id: send_wake_word_event
+                    wake_word: !lambda return wake_word;
+                # If a timer is ringing: Stop it, do not start the voice assistant (We can stop timer from voice!)
                 - if:
                     condition:
-                      voice_assistant.is_running:
+                      switch.is_on: timer_ringing
                     then:
                       - logger.log:
                           level: INFO
-                          format: "Wake word ignored: stopping the running voice assistant"
-                      - voice_assistant.stop:
-                    # Stop any other media player announcement
+                          format: "Wake word ignored: stopping the ringing timer"
+                      - switch.turn_off: timer_ringing
+                    # Stop voice assistant if running
                     else:
                       - if:
                           condition:
-                            media_player.is_announcing:
-                              id: external_media_player
+                            voice_assistant.is_running:
                           then:
                             - logger.log:
                                 level: INFO
-                                format: "Wake word ignored: stopping the announcement"
-                            - media_player.stop:
-                                announcement: true
-                                id: external_media_player
-                          # Start the voice assistant and play the wake greeting, if enabled
+                                format: "Wake word ignored: stopping the running voice assistant"
+                            - voice_assistant.stop:
+                          # Stop any other media player announcement
                           else:
-                            # Pin the AEC beam to the wake-word direction before any
-                            # other sound source can steal it. Gated by the user-facing
-                            # switch so the feature is opt-in. Ahead of the greeting
-                            # (upstream locks after its short chime) so the greeting
-                            # cannot pull the beam away during the wait below.
                             - if:
                                 condition:
-                                  switch.is_on: beam_lock_enabled
+                                  media_player.is_announcing:
+                                    id: external_media_player
                                 then:
-                                  - lambda: id(respeaker).lock_beam();
-                            - if:
-                                condition:
-                                  switch.is_on: wake_sound
-                                then:
-                                  - script.execute:
-                                      id: play_sound
-                                      priority: true
-                                      # Satellite1 time-of-day greeting: midnight-noon morning, noon-6pm
-                                      # afternoon, 6pm-midnight evening. Wake words in female_wake_words
-                                      # (matched on the manifest's wake_word phrase) get the _f set. The
-                                      # plain chime until the clock has synced after boot.
-                                      sound_file: !lambda |-
-                                        auto now = id(homeassistant_time).now();
-                                        if (!now.is_valid())
-                                          return std::string("wake_word_triggered_sound");
-                                        static const char *const FEMALE_WAKE_WORDS[] = {${female_wake_words}};
-                                        bool female = false;
-                                        for (const char *w : FEMALE_WAKE_WORDS)
-                                          female = female || wake_word == w;
-                                        const char *part = now.hour < 12 ? "morning"
-                                                         : now.hour < 18 ? "afternoon"
-                                                                         : "evening";
-                                        ESP_LOGI("greeting", "wake word '%s' -> %s %s", wake_word.c_str(),
-                                                 part, female ? "female" : "male");
-                                        return std::string("wake_good_") + part + (female ? "_f" : "") + "_sound";
-                                  # A spoken greeting runs about a second, and a mic opened under it
-                                  # transcribes it ("Good morning.") as the query. Listen once it has
-                                  # finished, capped in case it never starts.
-                                  - delay: 300ms
-                                  - wait_until:
+                                  - logger.log:
+                                      level: INFO
+                                      format: "Wake word ignored: stopping the announcement"
+                                  - media_player.stop:
+                                      announcement: true
+                                      id: external_media_player
+                                # Start the voice assistant and play the wake greeting, if enabled
+                                else:
+                                  # Pin the AEC beam to the wake-word direction before any
+                                  # other sound source can steal it. Gated by the user-facing
+                                  # switch so the feature is opt-in. Ahead of the greeting
+                                  # (upstream locks after its short chime) so the greeting
+                                  # cannot pull the beam away during the wait below.
+                                  - if:
                                       condition:
-                                        not:
-                                          media_player.is_announcing: external_media_player
-                                      timeout: 4s
-                            - voice_assistant.start:
-                                wake_word: !lambda return wake_word;
-        else:
-          - logger.log:
-              level: INFO
-              format: "Wake word ignored: microphone is muted"
+                                        switch.is_on: beam_lock_enabled
+                                      then:
+                                        - lambda: id(respeaker).lock_beam();
+                                  - if:
+                                      condition:
+                                        switch.is_on: wake_sound
+                                      then:
+                                        - script.execute:
+                                            id: play_sound
+                                            priority: true
+                                            # Satellite1 time-of-day greeting: midnight-noon morning, noon-6pm
+                                            # afternoon, 6pm-midnight evening. Wake words in female_wake_words
+                                            # (matched on the manifest's wake_word phrase) get the _f set. The
+                                            # plain chime until the clock has synced after boot.
+                                            sound_file: !lambda |-
+                                              auto now = id(homeassistant_time).now();
+                                              if (!now.is_valid())
+                                                return std::string("wake_word_triggered_sound");
+                                              static const char *const FEMALE_WAKE_WORDS[] = {${female_wake_words}};
+                                              bool female = false;
+                                              for (const char *w : FEMALE_WAKE_WORDS)
+                                                female = female || wake_word == w;
+                                              const char *part = now.hour < 12 ? "morning"
+                                                               : now.hour < 18 ? "afternoon"
+                                                                               : "evening";
+                                              ESP_LOGI("greeting", "wake word '%s' -> %s %s", wake_word.c_str(),
+                                                       part, female ? "female" : "male");
+                                              return std::string("wake_good_") + part + (female ? "_f" : "") + "_sound";
+                                        # A spoken greeting runs about a second, and a mic opened under it
+                                        # transcribes it ("Good morning.") as the query. Listen once it has
+                                        # finished, capped in case it never starts.
+                                        - delay: 300ms
+                                        - wait_until:
+                                            condition:
+                                              not:
+                                                media_player.is_announcing: external_media_player
+                                            timeout: 4s
+                                  - voice_assistant.start:
+                                      wake_word: !lambda return wake_word;
+              else:
+                - logger.log:
+                    level: INFO
+                    format: "Wake word ignored: microphone is muted"
 
 voice_assistant:
   id: va
