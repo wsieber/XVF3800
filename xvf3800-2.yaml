@@ -13,7 +13,10 @@ micro_wake_word:
       id: okay_computer
       # Manifest says 0.95; real detections averaged 0.94-0.96, so 0.92 gives some margin.
       probability_cutoff: 0.92
-    # Wake Word Studio 2026-10-22 (75k/50k, with VoxPopuli), at the manifest's cutoff 0.95 and window 5:
-    # 8 for 8 in the room and no false wakes in about 3 hours of loud TV on .121. Replaces Frederick v2.
-    - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/yo_frederickesp32.json
-      id: yo_frederick
+    # Wake Word Studio 2026-10-23 (75k/50k, with VoxPopuli), at the manifest's cutoff 0.98 and window 5.
+    - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/frederickesp32.json
+      id: frederick
+    # Wake Word Studio 2026-10-24 (75k/50k, with VoxPopuli and the custom negatives), at the manifest's
+    # cutoff 0.99 and window 5.
+    - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/computeresp32.json
+      id: computer
