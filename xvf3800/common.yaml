@@ -8,7 +8,7 @@ substitutions:
   wake_word_triggered_sound_file: sounds/yo.flac
   # Wake words (the manifest's wake_word phrase, quoted, comma-separated) that get the female (_f)
   # greeting set; every other wake word, Frederick included, gets the male set.
-  female_wake_words: '"Okay Nabu", "Ok Emily"'
+  female_wake_words: '"Okay Nabu", "Ok Emily", "Computer"'
 
 packages:
   respeaker:
