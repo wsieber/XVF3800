@@ -6,12 +6,14 @@ packages:
   common: !include xvf3800/common.yaml
 
 micro_wake_word:
-  # Test set from Wake Word Studio (2026-10-15/16).
   models:
-    # Wake Word Studio 2026-10-23 (75k/50k, with VoxPopuli), at the manifest's cutoff 0.98 and window 5.
+    # Published in wsieber/microwakewords (cd5d2ca), all at cutoff 0.98 and window 7: the manifests'
+    # looser cutoffs false-woke on TV. Wake Word Studio 2026-10-26 (custom negatives plus football).
     - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/frederickesp32.json
       id: frederick
-    # Wake Word Studio 2026-10-24 (75k/50k, with VoxPopuli and the custom negatives), at the manifest's
-    # cutoff 0.99 and window 5.
-    - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/computeresp32.json
-      id: computer
+    # Wake Word Studio 2026-10-26.
+    - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/alfredesp32.json
+      id: alfred
+    # Wake Word Studio 2026-10-27 (custom negatives plus GC); replaces plain Batman.
+    - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/okay_batmanesp32.json
+      id: okay_batman
