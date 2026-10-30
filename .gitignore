@@ -6,6 +6,7 @@
 /.venv/
 /build.log
 .DS_Store
+__pycache__/
 
 # Other devices managed from this directory (not part of the XVF3800 setup)
 /respeaker-satellite.yaml

@@ -1,6 +1,8 @@
 substitutions:
   name: xvf3800-2
   friendly_name: ReSpeaker XVF3800 2
+  # Wake only after the speech-to-text check, with the word actually said.
+  wake_verify_mode: reroute
 
 packages:
   common: !include xvf3800/common.yaml

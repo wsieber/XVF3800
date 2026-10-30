@@ -1,6 +1,8 @@
 substitutions:
   name: respeaker-xvf3800
   friendly_name: ReSpeaker XVF3800
+  # Trial: wake only after the speech-to-text check, with the word actually said.
+  wake_verify_mode: reroute
 
 packages:
   common: !include xvf3800/common.yaml
@@ -11,9 +13,16 @@ micro_wake_word:
     # looser cutoffs false-woke on TV. Wake Word Studio 2026-10-26 (custom negatives plus football).
     - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/frederickesp32.json
       id: frederick
+      # 0.92 rather than the published 0.98, which missed real calls (0.96 still missed over half):
+      # the speech-to-text check drops the extra false fires.
+      probability_cutoff: 0.92
     # Wake Word Studio 2026-10-26.
     - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/alfredesp32.json
       id: alfred
-    # Wake Word Studio 2026-10-27 (custom negatives plus GC); replaces plain Batman.
-    - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/okay_batmanesp32.json
-      id: okay_batman
+      probability_cutoff: 0.96
+    # Back in place of Okay Batman, now that the speech-to-text check drops its false fires: the
+    # 2026-10-26 trial (custom negatives), a local copy; the published computer.json is the older
+    # 10-24 run.
+    - model: .esphome/test_models/computer_20261026/computer.json
+      id: computer
+      probability_cutoff: 0.92

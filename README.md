@@ -8,8 +8,11 @@ It builds on [formatBCE/Respeaker-XVF3800-ESPHome-integration](https://github.co
 
 - **Time-of-day spoken wake greetings** ("Good morning / afternoon / evening") instead of the chime, ported from a
   FutureProofHomes Satellite1 setup. There is a male and a female voice set, chosen per wake word.
-- **Custom wake words**: "Frederick" (v2) and "Ok Emily", loaded from
-  [wsieber/microwakewords](https://github.com/wsieber/microwakewords), alongside the upstream ones.
+- **Custom wake words**: Frederick, Alfred, Computer and Okay Batman, from
+  [wsieber/microwakewords](https://github.com/wsieber/microwakewords) or local trial copies, alongside the upstream ones.
+- **Speech-to-text wake check** (`components/wake_verify`): every detection is transcribed by Home Assistant's
+  speech-to-text before the device wakes, so false fires are dropped silently and a wake caught by the wrong model goes
+  ahead with the word actually said. See [docs/wake-verify.md](docs/wake-verify.md).
 - **VAD gate raised to 0.5.** Upstream sets the microWakeWord VAD cutoff to 0.05, which lets almost any sound through.
 - **`micro_wake_word` logging at DEBUG**, so detections and VAD blocks are visible in the logs.
 - **One shared config for many units.** Each device is a 6-line file.
@@ -24,9 +27,11 @@ respeaker-xvf3800.yaml     # unit 1: name + friendly_name, includes xvf3800/comm
 xvf3800-2.yaml             # unit 2: same, different name
 xvf3800/common.yaml        # everything shared: upstream packages, Wi-Fi/OTA, greetings, wake words, VAD, logging
 xvf3800/voice-assistant.yaml  # local copy of upstream packages/voice-assistant.yaml with the greeting handler
+components/wake_verify/    # the speech-to-text wake check (external component)
 sounds/                    # greeting audio, embedded into the firmware at build time
 secrets.yaml.example       # copy to secrets.yaml
 docs/microwakeword-vad.md  # how the microWakeWord VAD model works and how ESPHome uses it
+docs/wake-verify.md        # how the speech-to-text wake check works, its log lines and options
 ```
 
 ## Build and flash a new unit
@@ -36,7 +41,8 @@ docs/microwakeword-vad.md  # how the microWakeWord VAD model works and how ESPHo
    python3 -m venv .venv
    .venv/bin/pip install "esphome==2026.9.1"
    ```
-2. **Add secrets**: `cp secrets.yaml.example secrets.yaml` and fill in Wi-Fi and an OTA password.
+2. **Add secrets**: `cp secrets.yaml.example secrets.yaml` and fill in Wi-Fi, an OTA password and a Home Assistant
+   long-lived access token (`ha_token`, for the wake check).
 3. **Create the device file**: copy `respeaker-xvf3800.yaml` to a new file and give it a unique `name` (hostname) and
    `friendly_name`. Don't reuse an existing name; duplicate names collide in Home Assistant.
    ```yaml
@@ -116,8 +122,11 @@ detections:
 `packages/voice-assistant.yaml` with the greeting change applied. When you bump the ref:
 
 1. Copy the new upstream `packages/voice-assistant.yaml` over the local one.
-2. Re-apply the greeting block in `on_wake_word_detected`. It's the `sound_file: !lambda` that picks
-   `wake_good_<part>[_f]_sound`, followed by the wait for the announcement to finish.
+2. Re-apply the local changes, listed in the file's header comment: the 2 s double-fire guard at the top of
+   `on_wake_word_detected`; after the mute and timer branches, a single `wake_verify.check`; and the `start_wake`
+   script, which holds the stop-assistant and stop-announcement branches, the beam lock, the greeting (the
+   `sound_file: !lambda` that picks `wake_good_<part>[_f]_sound`, then the wait for it to finish) and
+   `voice_assistant.start`.
 
 The file is copied rather than patched because ESPHome merges packages by **concatenating** action lists. A
 package's `on_wake_word_detected` can't be replaced: `!remove` plus a redefinition leaves both handlers running.

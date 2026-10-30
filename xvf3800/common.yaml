@@ -7,8 +7,21 @@ substitutions:
   # Fallback chime until the clock has synced after boot (same as the Satellite1s).
   wake_word_triggered_sound_file: sounds/yo.flac
   # Wake words (the manifest's wake_word phrase, quoted, comma-separated) that get the female (_f)
-  # greeting set; every other wake word (Frederick, Alfred, Okay Batman) gets the male set.
+  # greeting set; every other wake word (Frederick, Alfred, Computer, Okay Batman) gets the male set.
   female_wake_words: '"Okay Nabu"'
+  # Speech-to-text check of each wake (components/wake_verify): "off"; "log" to check and log only;
+  # or "reroute" to wait for the check and wake with the word actually said, or not at all. A device
+  # yaml turns it on by setting this in its own substitutions.
+  wake_verify_mode: "off"
+  ha_url: http://192.168.41.246:8125
+  # Local OpenAI-compatible engine: about 0.1 s per clip, against 0.5-0.9 s for Home Assistant Cloud.
+  wake_verify_stt_engine: stt.local_openai_stt_01kzy1n06w2wwwr48498tgcd40
+
+external_components:
+  - source:
+      type: local
+      path: components
+    components: [wake_verify]
 
 packages:
   respeaker:
@@ -55,6 +68,26 @@ audio_file:
     file: sounds/afternoon_f.mp3
   - id: wake_good_evening_f_sound
     file: sounds/evening_f.mp3
+
+wake_verify:
+  id: wake_verifier
+  # The channel micro_wake_word listens to, so the check hears what the model heard.
+  microphone:
+    microphone: i2s_mics
+    channels: 1
+  micro_wake_word: mww
+  mode: ${wake_verify_mode}
+  ha_url: ${ha_url}
+  ha_token: !secret ha_token
+  stt_engine: ${wake_verify_stt_engine}
+  # 0.75 rejected genuine wakes heard as "Okay, now Wu." and "Redruck." (both 0.67).
+  match_threshold: 0.65
+  # Okay Nabu is checked too: it takes other "Okay ..." words. Stop only runs during timers and replies.
+  skip_wake_words: ["Stop"]
+  on_wake:
+    - script.execute:
+        id: start_wake
+        wake_word: !lambda return wake_word;
 
 micro_wake_word:
   # Upstream sets 0.05, which barely gates anything; 0.5 is the model's manifest default (Sat1s use it).
