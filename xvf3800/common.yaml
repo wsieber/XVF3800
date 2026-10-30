@@ -7,7 +7,7 @@ substitutions:
   # Fallback chime until the clock has synced after boot (same as the Satellite1s).
   wake_word_triggered_sound_file: sounds/yo.flac
   # Wake words (the manifest's wake_word phrase, quoted, comma-separated) that get the female (_f)
-  # greeting set; every other wake word (Frederick, Alfred, Computer, Okay Batman) gets the male set.
+  # greeting set; every other wake word (Frederick, Alfred, Computer) gets the male set.
   female_wake_words: '"Okay Nabu"'
   # Speech-to-text check of each wake (components/wake_verify): "off"; "log" to check and log only;
   # or "reroute" to wait for the check and wake with the word actually said, or not at all. A device

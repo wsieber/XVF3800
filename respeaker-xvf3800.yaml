@@ -1,7 +1,7 @@
 substitutions:
   name: respeaker-xvf3800
   friendly_name: ReSpeaker XVF3800
-  # Trial: wake only after the speech-to-text check, with the word actually said.
+  # Wake only after the speech-to-text check, with the word actually said.
   wake_verify_mode: reroute
 
 packages:

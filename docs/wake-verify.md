@@ -127,7 +127,7 @@ REJECT 'Computer' score=0.00 heard='India.' (264 ms, 1.8s clip, peak 327 x32.0) 
   Speech-to-text often splits "Nabu" into "now" plus another word ("Okay, now who?", 0.62), and those are still
   rejected at 0.65; nothing safe below 0.62 separates them from ordinary "Okay, now …" speech.
 - **Lower model cutoffs.** With the check catching false fires, the models can run looser than the 0.98 that kept TV
-  quiet without it. On the test units Alfred runs at 0.96 and Frederick and Computer at 0.92: the user's own calls
+  quiet without it. Both units run Alfred at 0.96 and Frederick and Computer (Computerv3) at 0.92: the user's own calls
   scored 0.92–0.96, so 0.98 missed many of them, and the extra false fires (Computer four in a night, Alfred a couple a
   day) were all rejected.
 - **Speech-to-text inventions.** On noise the local engine sometimes returns text that was never said

@@ -8,8 +8,8 @@ It builds on [formatBCE/Respeaker-XVF3800-ESPHome-integration](https://github.co
 
 - **Time-of-day spoken wake greetings** ("Good morning / afternoon / evening") instead of the chime, ported from a
   FutureProofHomes Satellite1 setup. There is a male and a female voice set, chosen per wake word.
-- **Custom wake words**: Frederick, Alfred, Computer and Okay Batman, from
-  [wsieber/microwakewords](https://github.com/wsieber/microwakewords) or local trial copies, alongside the upstream ones.
+- **Custom wake words**: Frederick, Alfred and Computer (Computerv3), from
+  [wsieber/microwakewords](https://github.com/wsieber/microwakewords), alongside the upstream ones.
 - **Speech-to-text wake check** (`components/wake_verify`): every detection is transcribed by Home Assistant's
   speech-to-text before the device wakes, so false fires are dropped silently and a wake caught by the wrong model goes
   ahead with the word actually said. See [docs/wake-verify.md](docs/wake-verify.md).
