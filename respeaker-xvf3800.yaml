@@ -20,9 +20,8 @@ micro_wake_word:
     - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/alfredesp32.json
       id: alfred
       probability_cutoff: 0.96
-    # Back in place of Okay Batman, now that the speech-to-text check drops its false fires: the
-    # 2026-10-26 trial (custom negatives), a local copy; the published computer.json is the older
-    # 10-24 run.
-    - model: .esphome/test_models/computer_20261026/computer.json
+    # Back in place of Okay Batman, now that the speech-to-text check drops its false fires:
+    # Computerv3, the 2026-10-26 retrain (custom negatives); computer.json is the older 10-24 run.
+    - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/computerv3esp32.json
       id: computer
       probability_cutoff: 0.92
