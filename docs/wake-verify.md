@@ -20,7 +20,8 @@ same speech-to-text engine the Assist pipelines use.
    (out of 32768) and get the full 32×; the XVF3800's are already at full scale and are left alone.
 5. **Transcription.** The clip goes to `POST <ha_url>/api/stt/<stt_engine>` as 16 kHz 16-bit mono PCM, from a separate
    task so the main loop keeps running. The local OpenAI-compatible engine answers in 130–340 ms.
-6. **Matching.** The transcript is normalised (lower case, punctuation dropped, "ok" read as "okay") and every run of
+6. **Matching.** The transcript is normalised (lower case, punctuation dropped, "ok" read as "okay", and "okay now
+   boo" read as "okay nabu", along with "who", "wu", "lou" and a few other second halves) and every run of
    neighbouring words is compared with each enabled wake word, spaces removed, by edit distance. The score is
    1 − distance / length, so "Okay, Abu." scores 0.88 against Okay Nabu and "Elfrid." 0.67 against Alfred.
 7. **Verdict**, with `match_threshold` 0.65:
@@ -124,8 +125,10 @@ REJECT 'Computer' score=0.00 heard='India.' (264 ms, 1.8s clip, peak 327 x32.0) 
 ## Tuning notes (October 2026)
 
 - **Threshold 0.65.** At 0.75, genuine wakes heard as "Okay, now Wu." and "Redruck." (both 0.67) were rejected.
-  Speech-to-text often splits "Nabu" into "now" plus another word ("Okay, now who?", 0.62), and those are still
-  rejected at 0.65; nothing safe below 0.62 separates them from ordinary "Okay, now …" speech.
+  Speech-to-text often splits "Nabu" into "now" plus another word ("Okay, now who?", 0.62). Lowering the threshold
+  to 0.62 would also pass ordinary "Okay, now …" speech, so instead those exact splits ("now" followed by boo, bu,
+  who, wu, woo, lou, poo, vu or voo, right after "okay") are read as "Nabu" and score 1.00 (November 2026, after
+  "Okay, now Boo." cost two real wakes in one afternoon). "Okay, now we go." still scores 0.62.
 - **Lower model cutoffs.** With the check catching false fires, the models can run looser than the 0.98 that kept TV
   quiet without it. Both units run Alfred at 0.96 and Frederick and Computer (Computerv3) at 0.92: the user's own calls
   scored 0.92–0.96, so 0.98 missed many of them, and the extra false fires (Computer four in a night, Alfred a couple a

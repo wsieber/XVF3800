@@ -12,6 +12,7 @@
 #include <cctype>
 #include <cmath>
 #include <cstring>
+#include <iterator>
 
 namespace esphome::wake_verify {
 
@@ -313,7 +314,11 @@ bool WakeVerify::transcribe_(std::string &text, uint32_t &elapsed_ms, int32_t &p
   return true;
 }
 
-// Lowercase letters and digits, single spaces between words, and "ok" spelled "okay".
+// Second halves of "Nabu" that speech-to-text writes after "now": "Okay, now boo.", "Okay, now who?".
+static const char *const NABU_TAILS[] = {"boo", "bu", "who", "wu", "woo", "lou", "poo", "vu", "voo"};
+
+// Lowercase letters and digits, single spaces between words, "ok" spelled "okay", and "okay now boo" (and the
+// other NABU_TAILS) read as "okay nabu". Other "okay, now ..." speech is left alone.
 static std::vector<std::string> words_of(const std::string &s) {
   std::vector<std::string> words;
   std::string word;
@@ -331,7 +336,17 @@ static std::vector<std::string> words_of(const std::string &s) {
     if (w == "ok")
       w = "okay";
   }
-  return words;
+  std::vector<std::string> joined;
+  for (size_t i = 0; i < words.size(); i++) {
+    if (i > 0 && i + 1 < words.size() && words[i - 1] == "okay" && words[i] == "now" &&
+        std::find(std::begin(NABU_TAILS), std::end(NABU_TAILS), words[i + 1]) != std::end(NABU_TAILS)) {
+      joined.push_back("nabu");
+      i++;
+      continue;
+    }
+    joined.push_back(words[i]);
+  }
+  return joined;
 }
 
 static float similarity(const std::string &a, const std::string &b) {
