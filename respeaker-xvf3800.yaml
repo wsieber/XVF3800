@@ -25,3 +25,7 @@ micro_wake_word:
     - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/computerv3esp32.json
       id: computer
       probability_cutoff: 0.92
+    # Trial, local and unpublished: Are Two (R2), Wake Word Studio 2026-11-02 21:22 run, at the usual
+    # 0.98 and window 7. Chosen over the 11-03 run, which also fired on Alfred, Computer and Frederick.
+    - model: .esphome/test_models/are_two_20261102/are_two.json
+      id: are_two
