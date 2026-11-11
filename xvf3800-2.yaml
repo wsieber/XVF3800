@@ -9,23 +9,17 @@ packages:
 
 micro_wake_word:
   models:
-    # Published in wsieber/microwakewords (cd5d2ca), all at cutoff 0.98 and window 7: the manifests'
-    # looser cutoffs false-woke on TV. Wake Word Studio 2026-10-26 (custom negatives plus football).
-    - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/frederickesp32.json
-      id: frederick
-      # 0.92 rather than the published 0.98, which missed real calls (0.96 still missed over half):
-      # the speech-to-text check drops the extra false fires.
-      probability_cutoff: 0.92
-    # Wake Word Studio 2026-10-26.
-    - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/alfredesp32.json
-      id: alfred
-      probability_cutoff: 0.96
+    # Star Command, Wake Word Studio 2026-11-10 00:58 UTC run (75k/50k), local and unpublished, at the
+    # usual 0.98 and window 7 (manifest 0.96/6). Kept 2026-11-11 after a day's trial: no false wakes seen,
+    # the speech-to-text check rejected every false fire. Frederick and Alfred were retired for it.
+    - model: .esphome/test_models/star_command_20261110/star_command.json
+      id: star_command
     # Back in place of Okay Batman, now that the speech-to-text check drops its false fires:
     # Computerv3, the 2026-10-26 retrain (custom negatives); computer.json is the older 10-24 run.
     - model: https://raw.githubusercontent.com/wsieber/microwakewords/main/computerv3esp32.json
       id: computer
       probability_cutoff: 0.92
     # Trial, local and unpublished: Are Two (R2), Wake Word Studio 2026-11-02 21:22 run, at the usual
-    # 0.98 and window 7. Chosen over the 11-03 run, which also fired on Alfred, Computer and Frederick.
+    # 0.98 and window 7. Chosen over the 11-03 run, which also cross-fired on other words.
     - model: .esphome/test_models/are_two_20261102/are_two.json
       id: are_two
